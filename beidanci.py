@@ -9,33 +9,35 @@ import os
 
 
 
-def learn(df):
+def learn(df, start):
     total_row = len(df)
-    index = 0
-    while index < len(df):
+    idx = 0
+    while idx < len(df):
+        index = start + idx
         row = df.loc[index]
         vocab = row["Vocal"]
         meaning = row["Meaning"]
-        output = learn_phraser(index, total_row, vocab, meaning)
+        output = learn_phraser(idx, total_row, vocab, meaning)
         print(output)
         user_input = input(">>")
         print(user_input)
         if user_input == "a":
             if index > 0:
-                index -= 2
+                idx -= 2
             else:
-                index -= 1
-        index += 1 
+                idx -= 1
+        idx += 1 
         os.system('cls' if os.name == 'nt' else 'clear')
 
     return df
         
-def moxie(df):
+def moxie(df, start):
     total_row = len(df)
-    for index in range(len(df)):
+    for idx in range(len(df)):
+        index = start + idx
         row = df.loc[index]
         vocab = row["Vocal"]
-        output = moxie_phraser(index, total_row, vocab)
+        output = moxie_phraser(idx, total_row, vocab)
         print(output)
         my_meaning = input("::")
         df.loc[index, "Mymeaning"] = my_meaning
@@ -44,14 +46,15 @@ def moxie(df):
 
     return df
 
-def pigai(df):
+def pigai(df, start):
     total_row = len(df)
-    for index in range(len(df)):
+    for idx in range(len(df)):
+        index = start + idx
         row = df.loc[index]
         vocab = row["Vocal"]
         my_meaning = row["Mymeaning"]
         meaning = row["Meaning"]
-        output = pigai_phraser(index, total_row, vocab, my_meaning, meaning)
+        output = pigai_phraser(idx, total_row, vocab, my_meaning, meaning)
         print(output)
         key = input("::")
         if key != "":
@@ -67,20 +70,20 @@ def store_back(df_partial, df_full):
 
 def learn_phraser(index, total_row, vocab, meaning):
     output = ""
-    output += str(index) + "/" + str(total_row) + "\n" + "\n"
+    output += str(index+1) + "/" + str(total_row) + "\n" + "\n"
     output += vocab + "\n" + "\n"
     output += meaning
     return output
 
 def moxie_phraser(index, total_row, vocab):
     output = ""
-    output += str(index) + "/" + str(total_row) + "\n"
+    output += str(index+1) + "/" + str(total_row) + "\n"
     output += vocab
     return output
 
 def pigai_phraser(index, total_row, vocab, my_meaning, meaning):
     output = ""
-    output += str(index) + "/" + str(total_row) + "\n"
+    output += str(index+1) + "/" + str(total_row) + "\n"
     output += vocab + "\n"
     output += "Yours:   " + str(my_meaning) + "\n"
     output += "Meaning: " + meaning
@@ -90,30 +93,29 @@ def main():
     # Clear screen
     os.system('cls' if os.name == 'nt' else 'clear')
 
-    vocab_df = pd.read_csv("./GRE_vocab_1.csv", on_bad_lines='skip')
+    vocab_df = pd.read_csv("./test.csv", on_bad_lines='skip')
     section = int(input("Enter section [1-41]: "))
 
     start = 20 * (section - 1)
     end = 20 * section - 1
-    
     if end >= 815:
         end = 814
-
+    
     vocab_df_partial = vocab_df.loc[start:end, :]
 
     user_input = input("Directly go to Moxie? y/[N] ")
     if user_input != "Y" and user_input != 'y':
         while True:
-            learn(vocab_df_partial)
+            learn(vocab_df_partial, start)
             user_input = input("Go to moxie? [Y]/n")
             if user_input != "n":
                 break
 
     print("=========== Moxie ===========")
-    vocab_df_moxie = moxie(vocab_df_partial)
+    vocab_df_moxie = moxie(vocab_df_partial, start)
 
     print("============ Pigai ===========")
-    vocab_df_pigai = pigai(vocab_df_moxie)
+    vocab_df_pigai = pigai(vocab_df_moxie, start)
 
     df_to_store = store_back(vocab_df_pigai, vocab_df)
     df_to_store.to_csv("./test.csv")
