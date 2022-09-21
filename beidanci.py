@@ -24,7 +24,6 @@ def learn(df, start):
                 idx -= 1
         idx += 1 
         os.system('cls' if os.name == 'nt' else 'clear')
-
     return df
 
 def advanced_learn(df, start):
@@ -32,7 +31,7 @@ def advanced_learn(df, start):
     visited = set()
     while len(visited) < total_row:
         idx = 0
-        while idx < len(visited):
+        while idx < len(df):
             index = start + idx
             row = df.loc[index]
             vocab = row["Vocal"]
@@ -134,7 +133,7 @@ def main():
             user_input = input("Go to moxie? [Y]/n")
             if user_input != "n":
                 break
-
+    print("check1")
     advanced_learn(vocab_df_partial, start)
 
     print("=========== Moxie ===========")
