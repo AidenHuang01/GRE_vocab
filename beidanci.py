@@ -5,10 +5,6 @@ import pandas as pd
 import numpy as np
 import os
 
-
-
-
-
 def learn(df, start):
     total_row = len(df)
     idx = 0
@@ -30,6 +26,33 @@ def learn(df, start):
         os.system('cls' if os.name == 'nt' else 'clear')
 
     return df
+
+def advanced_learn(df, start):
+    total_row = len(df)
+    visited = set()
+    while len(visited) < total_row:
+        idx = 0
+        while idx < len(visited):
+            index = start + idx
+            row = df.loc[index]
+            vocab = row["Vocal"]
+            meaning = row["Meaning"]
+            if index not in visited:
+                os.system('cls' if os.name == 'nt' else 'clear')
+                output = str(idx+1) + "/" + str(total_row) + "\n\n"
+                output += vocab + "\n"
+                print(output)
+                input(">> ")
+                os.system('cls' if os.name == 'nt' else 'clear')
+                output = learn_phraser(idx, total_row, vocab, meaning)
+                print(output)
+                user_input = input("\nKnow? Y/[n]: ")
+                if user_input == "Y" or user_input == "y":
+                    visited.add(index)
+            idx += 1
+            
+                
+
         
 def moxie(df, start):
     total_row = len(df)
@@ -75,6 +98,7 @@ def learn_phraser(index, total_row, vocab, meaning):
     output += meaning
     return output
 
+
 def moxie_phraser(index, total_row, vocab):
     output = ""
     output += str(index+1) + "/" + str(total_row) + "\n"
@@ -110,6 +134,8 @@ def main():
             user_input = input("Go to moxie? [Y]/n")
             if user_input != "n":
                 break
+
+    advanced_learn(vocab_df_partial, start)
 
     print("=========== Moxie ===========")
     vocab_df_moxie = moxie(vocab_df_partial, start)
