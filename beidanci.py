@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+from pyexpat import model
 import pandas as pd
-import numpy as np
 import os
 
 def learn(df, start):
@@ -70,6 +70,7 @@ def moxie(df, start):
 
 def pigai(df, start):
     total_row = len(df)
+    df_wrong = pd.DataFrame(columns=df.columns)
     for idx in range(len(df)):
         index = start + idx
         row = df.loc[index]
@@ -81,9 +82,10 @@ def pigai(df, start):
         key = input("::")
         if key != "":
             df.loc[index, "Wrong"] += 1
+            df_wrong.loc[len(df_wrong)] = row
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    return df
+    return df, df_wrong
         
 def store_back(df_partial, df_full):
     df_full.update(df_partial)
@@ -112,6 +114,11 @@ def pigai_phraser(index, total_row, vocab, my_meaning, meaning):
     output += "Meaning: " + meaning
     return output
 
+def update_wrong_csv(file_name, df_wrong):
+    df_previous = pd.read_csv(file_name)
+    df_previous.update(df_wrong)
+    df_previous.to_csv(file_name, mode='a', index=False)
+
 def main():
     # Clear screen
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -126,7 +133,7 @@ def main():
     
     vocab_df_partial = vocab_df.loc[start:end, :]
 
-    user_input = input("Directly go to Moxie? y/[N] ")
+    user_input = input("Directly go to advanced learn? y/[N] ")
     if user_input != "Y" and user_input != 'y':
         while True:
             learn(vocab_df_partial, start)
@@ -134,16 +141,24 @@ def main():
             if user_input != "n":
                 break
     print("check1")
-    advanced_learn(vocab_df_partial, start)
+
+    user_input = input("Skip advanced learning? y/[N]: ")
+    print(user_input)
+    if user_input != "Y" and user_input != "y":
+        advanced_learn(vocab_df_partial, start)
 
     print("=========== Moxie ===========")
     vocab_df_moxie = moxie(vocab_df_partial, start)
 
     print("============ Pigai ===========")
-    vocab_df_pigai = pigai(vocab_df_moxie, start)
+    vocab_df_pigai, df_wrong = pigai(vocab_df_moxie, start)
+
+    update_wrong_csv("./wrong.csv", df_wrong)
 
     df_to_store = store_back(vocab_df_pigai, vocab_df)
-    df_to_store.to_csv("./test.csv")
+    df_to_store.to_csv("./test.csv", index=False)
+    
+
 
 if __name__ == "__main__":
     main()
